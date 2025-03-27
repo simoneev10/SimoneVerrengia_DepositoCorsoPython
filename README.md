@@ -1,2 +1,2 @@
 # SimoneVerrengia_DepositoCorsoPython
-Corso Python-ML
+Corso Python-ML, descrizione modificata
