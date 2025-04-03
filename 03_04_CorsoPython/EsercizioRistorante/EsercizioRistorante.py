@@ -1,6 +1,6 @@
 class Ristorante:
     
-    # menu = {"Carbonara":10}
+    menu = {"Carbonara":10}
     aperto = False
     
     def __init__(self, nomeRistorante, tipoCucina, menu):
@@ -84,14 +84,14 @@ while True: # Ciclo per avere un menu di selezione
         print("\nIl ristorante è stato chiuso!")
     elif scelta == 5:
         Ristorante1.aggiungi_al_menu()
-        print("Piatto aggiunto al menu con successo!")
+        print("\nPiatto aggiunto al menu con successo!")
     elif scelta == 6:
         Ristorante1.rimuovi_dal_menu()
     elif scelta == 7:
-        print("Ecco il menu del ristorante:")
+        print("\nEcco il menu del ristorante:")
         Ristorante1.stampa_menu()
     elif scelta == 8:
-        print("Arrivederci!")
+        print("\nArrivederci!\n")
         break
     else:
         print("Scelta non valida. Riprova.")
