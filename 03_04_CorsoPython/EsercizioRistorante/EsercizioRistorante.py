@@ -1,6 +1,6 @@
 class Ristorante:
     
-    menu = {"Carbonara":10}
+    # menu = {"Carbonara":10}
     aperto = False
     
     def __init__(self, nomeRistorante, tipoCucina, menu):
