@@ -55,7 +55,7 @@ def decifra(testo, chiave):
     return cifra(testo, -chiave)
 
 while True:
-    print("\n=== MENU CIFRATURA ===")
+    print("\nMENU CIFRATURA")
     print("1. Cifra un messaggio")
     print("2. Decifra un messaggio")
     print("3. Esci")
