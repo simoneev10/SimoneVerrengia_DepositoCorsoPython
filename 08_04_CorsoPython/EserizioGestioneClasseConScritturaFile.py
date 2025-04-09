@@ -16,7 +16,7 @@ def crea_file_csv():
         with open("alunni.csv", "w") as file:
             file.write("Nome,Cognome,Voti,Media")
 
-def aggiungi_alunno():
+def aggiungi_alunno(): # Funzione per aggiungere un alunno alla classe (alunni.csv)
     
     nome = input("Nome: ").strip()
     cognome = input("Cognome: ").strip()
@@ -26,10 +26,10 @@ def aggiungi_alunno():
 
     righe = contenuto.splitlines()
 
-    alunno_presente = False
+    alunno_presente = False # Flag utilizzato per verificare la presenza
 
     for riga in righe:
-        dati = riga.strip().split(",")
+        dati = riga.strip().split(",") # Utilizzo dati per vedere se in righe è presente l'alunno
         if dati[0] == nome and dati[1] == cognome:
             alunno_presente = True
             break
@@ -40,34 +40,32 @@ def aggiungi_alunno():
     else:
         numero_voti = int(input("Quanti voti vuoi inserire? "))
         voti = []
-        for i in range(numero_voti):
+        for i in range(numero_voti): # For per inserire il numero di voti selezionato
             voto = int(input(f"Inserisci voto {i+1}: "))
             voti.append(voto)
 
-        voti_str = "-".join([str(v) for v in voti])
+        voti_str = "-".join([str(v) for v in voti]) # Li salvo in questo modo: 6-7-8
         media = calcola_media(voti)
 
         with open("alunni.csv", "a") as file:
             file.write(f"\n{nome},{cognome},{voti_str},{media}")
         print("Alunno aggiunto!\n")
-        
 
-
-def mostra_alunni():
+def mostra_alunni(): # Funzione per mostrare tutti gli alunni
     try:
         with open("alunni.csv", "r") as file:
             righe = file.read()
         righe_lista = righe.split("\n")
-        if len(righe_lista) <= 1:
+        if len(righe_lista) <= 1: # Controllo se non ci sono alunni inseriti
             print("Nessun alunno nel registro.\n")
         else:
             print("\n--- Registro Alunni ---")
-            for riga in righe_lista: 
+            for riga in righe_lista: # scorro tutte le righe e le stampo
                 print(riga.strip())
     except:
         print("Errore nella lettura del file.")
 
-def modifica_alunno():
+def modifica_alunno(): # Funzione per modificare i dati dell'alunno
     nome = input("Nome dell'alunno da modificare: ").strip()
     cognome = input("Cognome: ").strip()
     trovato = False
@@ -80,7 +78,7 @@ def modifica_alunno():
 
     for riga in righe:
         dati = riga.strip().split(",")
-        if dati[0] == nome and dati[1] == cognome:
+        if dati[0] == nome and dati[1] == cognome: # Scorro le righe e uso dati per vedere se i dati corrispondono
             trovato = True
             print("Alunno trovato. Inserisci i nuovi voti.")
             nuovi_voti = []
@@ -89,7 +87,7 @@ def modifica_alunno():
                 voto = int(input(f"Voto {i+1}: "))
                 nuovi_voti.append(voto)
             media = calcola_media(nuovi_voti)
-            voti_str = "-".join(str(v) for v in nuovi_voti)
+            voti_str = "-".join(str(v) for v in nuovi_voti) # carico i voti in questo modo: 6-7-8
             nuove_righe.append(f"{nome},{cognome},{voti_str},{media}")
         else:
             nuove_righe.append(riga)
@@ -111,7 +109,7 @@ def elimina_alunno():
 
     for riga in righe:
         dati = riga.strip().split(",")
-        if dati[0] == nome and dati[1] == cognome:
+        if dati[0] == nome and dati[1] == cognome: # Scorro le righe e uso dati per vedere se i dati corrispondono
             trovato = True
             print(f"Alunno {nome} {cognome} eliminato.\n")
             continue # salta l'append della riga dove nome e cognome corrispondono
@@ -134,14 +132,14 @@ def modifica_nomi_alunno():
 
     for riga in righe:
         dati = riga.strip().split(",")
-        if dati[0] == nome and dati[1] == cognome:
+        if dati[0] == nome and dati[1] == cognome:  # Scorro le righe e uso dati per vedere se i dati corrispondono
             trovato = True
             nuovo_nome = input("Nuovo nome: ").strip()
             nuovo_cognome = input("Nuovo cognome: ").strip()
             nuove_righe.append(f"{nuovo_nome},{nuovo_cognome},{dati[2]},{dati[3]}")
             print("Nome e cognome modificati!\n")
         else:
-            nuove_righe.append(riga) # sovrascrivi il file 
+            nuove_righe.append(riga)
 
     if trovato:
         with open("alunni.csv", "w") as file:
@@ -149,11 +147,11 @@ def modifica_nomi_alunno():
     else:
         print("Alunno non trovato.\n")
 
-# Menu per la gestione del registro elettronico
-crea_file_csv()
 
+crea_file_csv()
+# Menu per la gestione del registro elettronico
+print("\nBenvenuto nel registro elettronico!")
 while True:
-    print("\nBenvenuto nel registro elettronico!")
     print("1. Aggiungi alunno")
     print("2. Mostra registro")
     print("3. Modifica voti alunno")
