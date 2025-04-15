@@ -1,251 +1,239 @@
+import unitaMilitareDB
+
+# Classe base per un'unità militare
 class UnitaMilitare:
     def __init__(self, nome, numero_soldati):
-       self.nome = nome
-       self.numero_soldati = numero_soldati
-       self.id = 1
+        self.nome = nome
+        self.numero_soldati = numero_soldati
     
+    # Metodo per muovere l'unità verso una zona target
     def muovi(self, zona_target):
-        print(f"L'unità militare {self.nome} è in marcia verso {zona_target}")
-        
-    def attacca(self, target):
-        print(f"Avvio dell'attacco verso {target}")
+        print(f"\n🔻 L'unità militare '{self.nome}' sta marciando verso {zona_target}.")
     
+    # Metodo per eseguire un attacco
+    def attacca(self, target):
+        print(f"\n💥 Avvio dell'attacco verso {target} da parte dell'unità '{self.nome}'.")
+    
+    # Metodo per ordinare una ritirata
     def ritirata(self, verso_dove):
-        print(f"L'unità militare {self.nome} si ritira verso {verso_dove} ")
-        
+        print(f"\n🚶‍♂️ L'unità militare '{self.nome}' si ritira verso {verso_dove}.")
+    
+
+# Classe per la Fanteria, una sottoclasse di UnitaMilitare
 class Fanteria(UnitaMilitare):
     def __init__(self, nome, numero_soldati, posizione_trincea):
         super().__init__(nome, numero_soldati)
         self.posizione_trincea = posizione_trincea
-        
+
+    # Metodo per costruire una trincea
     def costruisci_trincea(self):
-        print(f"La squadra fanteria {self.nome} costruisce una trincea a {self.posizione_trincea}")
+        print(f"\n🔨 La squadra Fanteria '{self.nome}' costruisce una trincea a {self.posizione_trincea}.")
     
+    # Metodo per ottenere il tipo di unità
     def get_tipo(self):
         return "Fanteria"
-        
+
+# Classe per la Cavalleria, una sottoclasse di UnitaMilitare
 class Cavalleria(UnitaMilitare):
     def __init__(self, nome, numero_soldati, terreno_target):
         super().__init__(nome, numero_soldati)
         self.terreno_target = terreno_target
-        
-    def esplora_terreno(self):
-        print(f"La squadra cavalleria {self.nome} avvia l'esplorazione verso {self.terreno_target}")
 
+    # Metodo per esplorare il terreno
+    def esplora_terreno(self):
+        print(f"\n🐎 La squadra Cavalleria '{self.nome}' avvia l'esplorazione verso {self.terreno_target}.")
+    
+    # Metodo per ottenere il tipo di unità
     def get_tipo(self):
         return "Cavalleria"
-        
+
+# Classe per l'Artiglieria, una sottoclasse di UnitaMilitare
 class Artiglieria(UnitaMilitare):
     def __init__(self, nome, numero_soldati, numero_razzi, target):
         super().__init__(nome, numero_soldati)
         self.numero_razzi = numero_razzi
         self.target = target
-        
+
+    # Metodo per calibrare l'artiglieria
     def calibra_artiglieria(self):
-        print(f"La squadra artiglieria {self.nome} impiega {self.numero_soldati} soldati per calibrare {self.numero_razzi} razzi, verso {self.target}")
+        print(f"\n🎯 La squadra Artiglieria '{self.nome}' calibra {self.numero_razzi} razzi verso {self.target}.")
     
+    # Metodo per ottenere il tipo di unità
     def get_tipo(self):
         return "Artiglieria"
-    
+
+# Classe per il Supporto Logistico, una sottoclasse di UnitaMilitare
 class SupportoLogistico(UnitaMilitare):
     def __init__(self, nome, numero_soldati, risorse):
         super().__init__(nome, numero_soldati)
         self.risorse = risorse
-        
+
+    # Metodo per distribuire risorse
     def distribuisci_risorse(self):
-        print(f"La squadra supporto logistico {self.nome} distribuisce {self.risorse} alle truppe")
+        print(f"\n🚚 La squadra Supporto Logistico '{self.nome}' distribuisce {self.risorse} alle truppe.")
     
+    # Metodo per ottenere il tipo di unità
     def get_tipo(self):
         return "Supporto Logistico"
 
+# Classe per la Ricognizione, una sottoclasse di UnitaMilitare
 class Ricognizione(UnitaMilitare):
     def __init__(self, nome, numero_soldati, target):
         super().__init__(nome, numero_soldati)
         self.target = target
-        
-    def conduci_ricognizione(self):
-        print(f"La squadra ricognizione {self.nome} impiega {self.numero_soldati} soldati per sorvegliare {self.target}")
 
+    # Metodo per condurre la ricognizione
+    def conduci_ricognizione(self):
+        print(f"\n🕵️‍♂️ La squadra Ricognizione '{self.nome}' sta sorvegliando {self.target}.")
+    
+    # Metodo per ottenere il tipo di unità
     def get_tipo(self):
         return "Ricognizione"
 
+# Classe per gestire il controllo delle unità militari
 class ControlloMilitare(UnitaMilitare):
-    unita_registrate = {}
-    id_counter = 1  # Contatore per gli ID univoci
-    
+    unita_registrate = {}  # Dizionario per tenere traccia delle unità
+    id_counter = 1  # Contatore per assegnare ID univoci alle unità
+
     def __init__(self, nome="Comando Centrale", numero_soldati=0):
         super().__init__(nome, numero_soldati)
-        
+
+    # Metodo per mostrare tutte le unità registrate
     def mostra_unita(self):
         if not self.unita_registrate:
-            print("Nessuna unità registrata!")
+            print("\n⚠️ Nessuna unità registrata!")
             return
-        
-        print("\nELENCO UNITÀ MILITARI")
+        print("\n📋 ELENCO UNITÀ:")
         for id_unita, unita in self.unita_registrate.items():
             print(f"ID: {id_unita} - Tipo: {unita.get_tipo()} - Nome: {unita.nome} - Soldati: {unita.numero_soldati}")
-        
+
+    # Metodo per registrare una nuova unità
     def registra_unita(self):
-        print("\nREGISTRAZIONE NUOVA UNITÀ")
-        print("Tipi di unità disponibili:")
-        print("1. Fanteria")
-        print("2. Cavalleria")
-        print("3. Artiglieria")
-        print("4. Supporto Logistico")
-        print("5. Ricognizione")
-        
-        tipo_unita = input("Seleziona tipo di unità (1-6): ")
+        print("\n📌 REGISTRAZIONE NUOVA UNITÀ")
+        print("1. Fanteria\n2. Cavalleria\n3. Artiglieria\n4. Supporto Logistico\n5. Ricognizione")
+        tipo_unita = input("Tipo (1-5): ")
         nome = input("Nome unità: ")
         numero_soldati = int(input("Numero soldati: "))
-        
+
         nuova_unita = None
-        
+        dettaglio = None
 
-        if tipo_unita == "1":
-            posizione_trincea = input("Posizione trincea: ")
-            nuova_unita = Fanteria(nome, numero_soldati, posizione_trincea)
-        elif tipo_unita == "2":
-            terreno_target = input("Terreno target per esplorazione: ")
-            nuova_unita = Cavalleria(nome, numero_soldati, terreno_target)
-        elif tipo_unita == "3":
-            numero_razzi = int(input("Numero razzi: "))
-            target = input("Target: ")
-            nuova_unita = Artiglieria(nome, numero_soldati, numero_razzi, target)
-        elif tipo_unita == "4":
-            risorse = input("Risorse da gestire: ")
-            nuova_unita = SupportoLogistico(nome, numero_soldati, risorse)
-        elif tipo_unita == "5":
-            target = input("Target per ricognizione: ")
-            nuova_unita = Ricognizione(nome, numero_soldati, target)
-        else:
-            print("Tipo non valido, creazione unità generica.")
-            nuova_unita = UnitaMilitare(nome, numero_soldati)
-        
+        # Gestione della scelta del tipo di unità
+        match tipo_unita:
+            case "1":
+                posizione_trincea = input("Posizione trincea: ")
+                nuova_unita = Fanteria(nome, numero_soldati, posizione_trincea)
+                dettaglio = posizione_trincea
+            case "2":
+                terreno_target = input("Terreno da esplorare: ")
+                nuova_unita = Cavalleria(nome, numero_soldati, terreno_target)
+                dettaglio = terreno_target
+            case "3":
+                numero_razzi = int(input("Numero razzi: "))
+                target = input("Target artiglieria: ")
+                nuova_unita = Artiglieria(nome, numero_soldati, numero_razzi, target)
+                dettaglio = {"numero_razzi": numero_razzi, "target": target}
+            case "4":
+                risorse = input("Tipo di risorse: ")
+                nuova_unita = SupportoLogistico(nome, numero_soldati, risorse)
+                dettaglio = risorse
+            case "5":
+                target = input("Target ricognizione: ")
+                nuova_unita = Ricognizione(nome, numero_soldati, target)
+                dettaglio = target
+            case _:
+                print("\n❌ Tipo non valido.")
+                return
+
+        # Aggiungi l'unità nel database e nell'elenco
+        tipo = nuova_unita.get_tipo()
+        id_unita_db = unitaMilitareDB.inserisci_unita(nome, numero_soldati, tipo, dettaglio)
+
+        # Salva l'unità nell'elenco delle unità registrate
         self.unita_registrate[self.id_counter] = nuova_unita
-        print(f"Unità '{nome}' registrata con ID {self.id_counter}")
+        print(f"\n✅ Unità '{nome}' registrata con ID {self.id_counter} (ID DB: {id_unita_db})")
         self.id_counter += 1
-    
-    def dettagli_unita(self):
-        if not self.unita_registrate:
-            print("Nessuna unità registrata!")
-            return
-            
-        self.mostra_unita()
-        try:
-            id_unita = int(input("\nInserisci ID unità da visualizzare: "))
-            unita = self.unita_registrate.get(id_unita)
-            
-            if unita:
-                print("\nSCHEDA UNITÀ")
-                print(f"Tipo: {unita.get_tipo()}")
-                print(f"Nome: {unita.nome}")
-                print(f"Numero soldati: {unita.numero_soldati}")
-                print(f"ID registro: {id_unita}")
-                
-                # Mostra proprietà specifiche in base al tipo di unità
-                if isinstance(unita, Fanteria):
-                    print(f"Posizione trincea: {unita.posizione_trincea}")
-                elif isinstance(unita, Cavalleria):
-                    print(f"Terreno target: {unita.terreno_target}")
-                elif isinstance(unita, Artiglieria):
-                    print(f"Numero razzi: {unita.numero_razzi}")
-                    print(f"Target: {unita.target}")
-                elif isinstance(unita, SupportoLogistico):
-                    print(f"Risorse: {unita.risorse}")
-                elif isinstance(unita, Ricognizione):
-                    print(f"Target ricognizione: {unita.target}")
-            else:
-                print("ID unità non valido!")
-        except ValueError:
-            print("Errore: Inserire un numero valido")
 
+    # Metodo per eseguire operazioni su una specifica unità
     def operazioni_unita(self):
         if not self.unita_registrate:
-            print("Nessuna unità registrata!")
+            print("\n⚠️ Nessuna unità registrata!")
             return
-            
+
         self.mostra_unita()
         try:
-            id_unita = int(input("\nInserisci ID unità da comandare: "))
+            id_unita = int(input("\nID dell'unità da comandare: "))
             unita = self.unita_registrate.get(id_unita)
-            
-            if unita:
-                print(f"\nCOMANDO UNITÀ: {unita.nome} ({unita.get_tipo()})")
-                print("Operazioni disponibili:")
-                print("1. Muovi")
-                print("2. Attacca")
-                print("3. Ritirata")
-                
-                # Operazioni specifiche per tipo
-                if isinstance(unita, Fanteria):
-                    print("4. Costruisci trincea")
-                elif isinstance(unita, Cavalleria):
-                    print("4. Esplora terreno")
-                elif isinstance(unita, Artiglieria):
-                    print("4. Calibra artiglieria")
-                elif isinstance(unita, SupportoLogistico):
-                    print("4. Distribuisci risorse")
-                elif isinstance(unita, Ricognizione):
-                    print("4. Conduci ricognizione")
-                
-                scelta = input("Selezione operazione: ")
-                
-                if scelta == "1":
+
+            if not unita:
+                print("\n❌ ID non valido.")
+                return
+
+            print(f"\n⚔️ Comando unità: {unita.nome} ({unita.get_tipo()})")
+            print("1. Muovi\n2. Attacca\n3. Ritirata\n4. Azione speciale")
+
+            scelta = input("Scelta: ")
+
+            # Esegui l'operazione scelta
+            match scelta:
+                case "1":
                     zona = input("Destinazione: ")
                     unita.muovi(zona)
-                elif scelta == "2":
-                    target = input("Target da attaccare: ")
+                case "2":
+                    target = input("Target: ")
                     unita.attacca(target)
-                elif scelta == "3":
-                    verso_dove = input("Destinazione ritirata: ")
-                    unita.ritirata(verso_dove)
-                elif scelta == "4":
-                    if isinstance(unita, Fanteria):
-                        unita.costruisci_trincea()
-                    elif isinstance(unita, Cavalleria):
-                        unita.esplora_terreno()
-                    elif isinstance(unita, Artiglieria):
-                        unita.calibra_artiglieria()
-                    elif isinstance(unita, SupportoLogistico):
-                        unita.distribuisci_risorse()
-                    elif isinstance(unita, Ricognizione):
-                        unita.conduci_ricognizione()
-                    else:
-                        print("Operazione non disponibile per questo tipo di unità.")
-                else:
-                    print("Operazione non valida.")
-            else:
-                print("ID unità non valido!")
+                case "3":
+                    direzione = input("Verso dove? ")
+                    unita.ritirata(direzione)
+                case "4":
+                    match unita:
+                        case Fanteria():
+                            unita.costruisci_trincea()
+                        case Cavalleria():
+                            unita.esplora_terreno()
+                        case Artiglieria():
+                            unita.calibra_artiglieria()
+                        case SupportoLogistico():
+                            unita.distribuisci_risorse()
+                        case Ricognizione():
+                            unita.conduci_ricognizione()
+                        case _:
+                            print("\n❌ Operazione non disponibile.")
+                case _:
+                    print("\n❌ Scelta non valida.")
         except ValueError:
-            print("Errore: Inserire un numero valido")
+            print("\n⚠️ Errore: inserire un numero valido.")
 
+# Funzione principale per interagire con il sistema di controllo
 def menu_controllo_militare():
+    unitaMilitareDB.crea_tabelle()
     sistema = ControlloMilitare()
-    
+
     while True:
-        print("\nSISTEMA DI CONTROLLO MILITARE")
+        print("\n📡 SISTEMA DI CONTROLLO MILITARE")
         print("1. Registra nuova unità")
         print("2. Mostra tutte le unità")
-        print("3. Visualizza dettagli unità")
-        print("4. Comanda un'unità")
-        print("5. Torna al menu principale")
-        
-        scelta = input("Selezione: ")
-        
-        if scelta == "1":
-            sistema.registra_unita()
-        elif scelta == "2":
-            sistema.mostra_unita()
-        elif scelta == "3":
-            sistema.dettagli_unita()
-        elif scelta == "4":
-            sistema.operazioni_unita()
-        elif scelta == "5":
-            print("Uscita dal sistema di controllo...")
-            break
-        else:
-            print("Scelta non valida. Riprovare.")
+        print("3. Comanda un'unità")
+        print("4. Riepilogo Soldati per Tipo di Esercito")
+        print("5. Esci")
 
-# Per testare direttamente questo modulo
+        scelta = input("Scelta: ")
+
+        match scelta:
+            case "1":
+                sistema.registra_unita()
+            case "2":
+                sistema.mostra_unita()
+            case "3":
+                sistema.operazioni_unita()
+            case "4":
+                unitaMilitareDB.riepilogo_soldati()
+            case "5":
+                print("\n💼 Chiusura sistema...")
+                break
+            case _:
+                print("\n❌ Scelta non valida.")
+
 if __name__ == "__main__":
     menu_controllo_militare()
+
