@@ -36,7 +36,13 @@ class ContoBancario: # Classe ContoBancario con attributi privati
         except ValueError:
             print("Inserisci numero valido!")
             return
-                
+
+    def modifica_info(self):
+        nuovo_titolare = input("Inserisci il nuovo nome titolare: ")
+        if not nuovo_titolare or not nuovo_titolare.strip():
+            print("Errore: Il nome del titolare non può essere vuoto")
+        else:
+            self.set_titolare(nuovo_titolare)               
         
 if __name__ == "__main__":
     conto = ContoBancario("Simone", 1000)
@@ -44,12 +50,14 @@ if __name__ == "__main__":
     
     while True: # Menu per simulare tutte le funnzionalità
         print(f"\nSaldo attuale: €{conto.get_saldo()}")
-        scelta = input("[D]eposita, [P]releva, [E]sci: ").upper()
+        scelta = input("[D]eposita, [P]releva, [M]odificaConto ,[E]sci: ").upper()
         
         if scelta == "D":
             conto.deposita()
         elif scelta == "P":
             conto.preleva()
+        elif scelta == "M":
+            conto.modifica_info()
         elif scelta == "E":
             break
         else:
