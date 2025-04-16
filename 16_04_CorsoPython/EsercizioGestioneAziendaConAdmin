@@ -1,0 +1,162 @@
+from abc import ABC, abstractmethod
+
+class Impiegato(ABC): # Utilizzo una classe astratta per lo scheletro di impiegato
+    @abstractmethod
+    def __init__(self, nome, cognome, stipendio_base):
+        self.nome = nome
+        self.cognome = cognome
+        self.stipendio_base = stipendio_base
+    
+    @abstractmethod
+    def calcola_stipendio(self):
+        pass
+    
+    def __str__(self):
+        return f"{self.nome} {self.cognome} - Stipendio: {self.calcola_stipendio()}€"
+
+class ImpiegatoFisso(Impiegato):
+    def __init__(self, nome, cognome, stipendio_base, admin=False):
+        super().__init__(nome, cognome, stipendio_base)
+        self.__admin = admin
+        
+    def calcola_stipendio(self):
+        return self.stipendio_base
+        
+    def get_admin(self):
+        return self.__admin
+    
+    def set_admin(self, admin):
+        self.__admin = admin
+        
+    def __str__(self):
+        base = super().__str__()
+        return f"{base} (Amministratore)" if self.__admin else base
+
+class ImpiegatoAProvvigione(Impiegato):
+    def __init__(self, nome, cognome, stipendio_base, vendite=0):
+        super().__init__(nome, cognome, stipendio_base)
+        self.__vendite = vendite
+        
+    def calcola_stipendio(self):
+        return self.stipendio_base + (self.__vendite * 10)
+        
+    def get_vendite(self):
+        return self.__vendite
+    
+    def set_vendite(self, vendite):
+        self.__vendite = vendite
+    
+    def aggiungi_vendite(self):
+        nuove_vendite = int(input(f"Quante vendite ha effettuato {self.nome}? "))
+        self.__vendite += nuove_vendite
+
+class Azienda:
+    def __init__(self):
+        self.__impiegati = []
+        self.__admin = None
+    
+    def login(self, nome, cognome):
+        for impiegato in self.__impiegati:
+            try:
+                if impiegato.nome == nome and impiegato.cognome == cognome and impiegato.get_admin():
+                    self.__admin = impiegato
+                    return True
+            except AttributeError:
+                continue
+        return False
+    
+    def logout(self):
+        self.__admin = None
+    
+    def is_admin_logged(self):
+        return self.__admin is not None
+    
+    def aggiungi_impiegato(self, impiegato):
+        if not self.is_admin_logged():
+            print("Accesso negato. Solo l'amministratore può aggiungere impiegati!")
+            return False
+        
+        self.__impiegati.append(impiegato)
+        return True
+    
+    def visualizza_impiegati(self):
+        if not self.__impiegati:
+            print("Nessun impiegato registrato!")
+            return
+        
+        print("\n=== LISTA IMPIEGATI ===")
+        for i, impiegato in enumerate(self.__impiegati, 1):
+            print(f"{i}. {impiegato}")
+
+def menu_principale():
+    azienda = Azienda()
+    
+    # Creazione admin predefinito
+    admin = ImpiegatoFisso("a", "a", 3000, True)
+    # azienda.aggiungi_impiegato(admin)
+    azienda._Azienda__impiegati.append(admin)
+    
+    while True:
+        print("\n=== MENU PRINCIPALE ===")
+        print("1. Login amministratore")
+        print("2. Esci")
+        
+        scelta = input("Scelta: ")
+        
+        if scelta == "1":
+            nome = input("Nome: ")
+            cognome = input("Cognome: ")
+            if azienda.login(nome, cognome):
+                menu_admin(azienda)
+            else:
+                print("Credenziali non valide o non sei un amministratore!")
+        elif scelta == "2":
+            print("Arrivederci!")
+            break
+        else:
+            print("Scelta non valida!")
+
+def menu_admin(azienda):
+    while azienda.is_admin_logged():
+        print("\n=== MENU AMMINISTRATORE ===")
+        print("1. Aggiungi impiegato")
+        print("2. Visualizza impiegati")
+        print("3. Logout")
+        
+        scelta = input("Scelta: ")
+        
+        if scelta == "1":
+            print("\nTipi di impiegato:")
+            print("1. Impiegato fisso")
+            print("2. Impiegato a provvigione")
+            
+            tipo = input("Seleziona tipo: ")
+            nome = input("Nome: ")
+            cognome = input("Cognome: ")
+            
+            if tipo == "1":
+                stipendio = 1500 # int(input("Stipendio base: "))
+                impiegato = ImpiegatoFisso(nome, cognome, stipendio)
+            elif tipo == "2":
+                stipendio = 1500 # int(input("Stipendio base: "))
+                vendite = int(input("Numero vendite iniziali: "))
+                impiegato = ImpiegatoAProvvigione(nome, cognome, stipendio, vendite)
+            else:
+                print("Tipo non valido!")
+                continue
+            
+            if azienda.aggiungi_impiegato(impiegato):
+                print("Impiegato aggiunto con successo!")
+        
+        elif scelta == "2":
+            azienda.visualizza_impiegati()
+        
+        elif scelta == "3":
+            azienda.logout()
+            print("Logout effettuato.")
+        
+        else:
+            print("Scelta non valida!")
+
+if __name__ == "__main__":
+    menu_principale()
