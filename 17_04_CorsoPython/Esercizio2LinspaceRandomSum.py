@@ -23,7 +23,7 @@ class GestioneArray:
     def somma_array(self):  # Dentro la funzione sfrutto il metodo sum per effettuare la somma dei due array
         if self.arr_equi is not None and self.arr_rand is not None: # Controllo per vedere se si può effettuare la somma
             if len(self.arr_equi) != len(self.arr_rand):
-                print("Errore: gli array devono avere la stessa dimensione.")
+                print("Errore: gli  devarrayono avere la stessa dimensione.")
                 return
             self.arr_somma = self.arr_equi + self.arr_rand
             self.somma_totale = np.sum(self.arr_somma)
