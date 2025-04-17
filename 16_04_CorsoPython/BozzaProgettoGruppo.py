@@ -1,117 +1,273 @@
-class Pasticceria():
-    def __init__(self, nome, guadagnoStimato):
+from abc import ABC, abstractmethod
+import time
+
+# Classe astratta con ingredienti di base
+class ModelloTorta(ABC):
+    def __init__(self, nome, peso, ingredienti_aggiuntivi):
         self.nome = nome
-        self.__inventario = {}
-        self.__guadagnoStimato = guadagnoStimato
+        self.peso = peso
+        self.ingredienti = ["farina", "zucchero", "uova"] + ingredienti_aggiuntivi
 
-    # Getter per inventario
-    def get_inventario(self):
-        return self.__inventario
+    @abstractmethod
+    def calcola_prezzo(self, peso):
+        pass
 
-    # Setter per inventario
-    def set_inventario(self, nuovo_inventario):
-        self.__inventario = nuovo_inventario
+# Sottoclasse per una Torta al cioccolato
+class TortaCioccolato(ModelloTorta):
+    def __init__(self, peso):
+        super().__init__("Torta al Cioccolato", peso, ["cioccolato"])
+        self.base_price = 15  # Prezzo base per la torta al cioccolato
 
-    # Getter per guadagno stimato
-    def get_guadagno_stimato(self):
-        return self.__guadagnoStimato
-
-    # Setter per guadagno stimato
-    def set_guadagno_stimato(self, nuovo_guadagno):
-        self.__guadagnoStimato = nuovo_guadagno
-        
-    def crea_torta(self, peso, nome):
-        #nome = input("Inserisci nome: ")
-        inventarioApp = self.get_inventario()
-        for key,values in inventarioApp.items():
-            if key == inventarioApp[nome]:
-                print("La torta è già presente nell'inventario!")
-                del inventarioApp[nome]
-                self.set_inventario(inventarioApp)
-                return
-            else:
-                peso = input("Inserisci il peso (in Kg): ")
-                match nome:
-                    case "TortaFrutta":
-                        torta = TortaFrutta(peso)
-                        print(f"Print torta {self.nome} è stata aggiunta all'inventario")
-                    case "TortaMela":
-                        torta = TortaMela(peso)
-                        print(f"Print torta {self.nome} è stata aggiunta all'inventario")
-                    case "TortaCioccolato":
-                        torta = TortaCioccolato(peso)
-                        print(f"Print torta {self.nome} è stata aggiunta all'inventario")
-                
-                inventarioApp[nome] = peso
-                #torta(nome)
-    
-    
-    def prezzo_torta(self, peso, nome):
-        #inventarioApp = self.get_inventario()
-        # for key,values in inventarioApp.items():
-        prezzo = nome.calcola_prezzo(peso)
+    def calcola_prezzo(self, peso):
+        prezzo = self.base_price * peso  # Il prezzo dipende dal peso
         return prezzo
-         
-        
-                
-    def ordina_torta(self, peso, nome):
-        #nome = input("Inserisci nome: ")
-        inventarioApp = self.get_inventario()
-        for key,values in inventarioApp.items():
-            if key == inventarioApp[nome]:
-                print("La torta è già presente nell'inventario!")
-                del inventarioApp[nome]
-                self.set_inventario(inventarioApp)
-                return
-            else:
-                peso = input("Inserisci il peso (in Kg): ")
-                match nome:
-                    case "TortaFrutta":
-                        torta = TortaFrutta(peso)
-                        print(f"La torta {self.nome} è stata ordinata")
-                    case "TortaMela":
-                        torta = TortaMela(peso)
-                        print(f"La torta {self.nome} è stata ordinata")
-                    case "TortaCioccolato":
-                        torta = TortaCioccolato(peso)
-                        print(f"La torta {self.nome} è stata ordinata")
-                    case _:
-                        print("Scelta non valida")
-                        return False
-        return True
-         
-    def calcola_guadagno(self):
-        inventarioApp = self.get_inventario()
-        totValore = 0
-        for key,values in self.inventarioApp.items():
-            prezzo = key.calcola_prezzo(inventarioApp[key])
-            totValore += prezzo
-        print(f"Il guadagno stimato è: {totValore}")
-        
-past = Pasticceria()
 
+# Sottoclasse per una Torta alla frutta
+class TortaFrutta(ModelloTorta):
+    def __init__(self, peso):
+        super().__init__("Torta alla Frutta", peso, ["frutta"])
+        self.base_price = 12  # Prezzo base per la torta alla frutta
+
+    def calcola_prezzo(self, peso):
+        prezzo = self.base_price * peso  # Il prezzo dipende dal peso
+        return prezzo
+
+# Sottoclasse per una Torta di mele
+class TortaMela(ModelloTorta):
+    def __init__(self, peso):
+        super().__init__("Torta di Mela", peso, ["mele"])
+        self.base_price = 10  # Prezzo base per la torta di mela
+
+    def calcola_prezzo(self, peso):
+        prezzo = self.base_price * peso  # Il prezzo dipende dal peso
+        return prezzo
+    
+# Classe pasticceria con gestione ingredienti e saldo
+class Pasticceria():
+    def __init__(self):
+        self.__inventario = {}
+        self.__saldo = 10  # saldo iniziale della pasticceria
+        self.__ingredienti = {
+            "farina": 100,   # quantità in kg
+            "zucchero": 50,  # quantità in kg
+            "uova": 30,      # quantità in unità
+            "cioccolato": 20,
+            "frutta": 25,
+            "mele": 15
+        }
+
+    def get_saldo(self):
+        return self.__saldo
+
+    def registra_vendita(self, torta):
+        guadagno = torta.calcola_prezzo(torta.peso)
+        self.__saldo += guadagno
+        print(f"🍰 La pasticceria ha guadagnato €{guadagno:.2f}. Saldo attuale: €{self.__saldo:.2f} 🏦\n")
+
+    def rifornisci_ingredienti(self, ingrediente, quantita):
+        if ingrediente in self.__ingredienti:
+            self.__ingredienti[ingrediente] += quantita
+            # Ogni rifornimento di ingredienti costa 1 euro dalla pasticceria
+            self.__saldo -= 1
+            print(f"✔️ {quantita} kg di {ingrediente} sono stati aggiunti all'inventario. Costo: €1.")
+            print(f"Saldo rimanente della pasticceria: €{self.__saldo:.2f}\n")
+        else:
+            print(f"❌ Ingrediente {ingrediente} non trovato.\n")
+
+    def verifica_ingredienti(self, torta):
+        for ingrediente in torta.ingredienti:
+            if ingrediente in self.__ingredienti and self.__ingredienti[ingrediente] > 0:
+                pass  # Ingrediente disponibile
+            else:
+                print(f"❌ Ingredienti insufficienti: {ingrediente}!")
+                return False
+        return True
+
+    def crea_torta(self, peso, nome):
+        nome = nome.lower()
+        time.sleep(2)
+        match nome:
+            case "tortafrutta":
+                torta = TortaFrutta(peso)
+            case "tortamela":
+                torta = TortaMela(peso)
+            case "tortacioccolato":
+                torta = TortaCioccolato(peso)
+            case _:
+                print("❌ Torta non valida.\n")
+                return None
+        
+        if self.verifica_ingredienti(torta):
+            # Consuma ingredienti per la torta
+            for ingrediente in torta.ingredienti:
+                if ingrediente in self.__ingredienti:
+                    self.__ingredienti[ingrediente] -= 1  # Consuma 1 kg o 1 unità di ingrediente
+                    print(f"✔️ Ingrediente {ingrediente} consumato.")
+
+            self.__inventario[nome] = torta
+            print(f"🎂 {torta.nome} da {peso}kg è stata aggiunta all'inventario.")
+            self.mostra_inventario()
+            return torta
+        else:
+            print("❌ Impossibile preparare la torta, ingredienti insufficienti.\n")
+            return None
+
+    def ordina_torta(self, peso, nome):
+        nome = nome.lower()
+        inventario = self.__inventario
+
+        if nome in inventario and inventario[nome].peso == peso:
+            print(f"✅ Torta {nome.capitalize()} trovata in inventario. Viene consegnata.")
+            torta = inventario.pop(nome)
+            return torta
+        else:
+            print(f"⏳ Torta non presente, la stiamo preparando su ordinazione...")
+            # Tempo di preparazione simulato (2 secondi)
+            time.sleep(2)
+            return self.crea_torta(peso, nome)
+
+    def mostra_inventario(self):
+        print("\n--- INVENTARIO RIMANENTE ---")
+        for ingrediente, quantita in self.__ingredienti.items():
+            print(f"{ingrediente.capitalize()}: {quantita} unità")
+        print()
+
+# Classe Cliente
 class Cliente():
     def __init__(self, nome, budget):
         self.nome = nome
         self.__budget = budget
-    
-    # getter per inventario    
+
     def get_budget(self):
         return self.__budget
 
-    # Setter per inventario
     def set_budget(self, budget):
         self.__budget = budget
-         
-    def prenota_torta(self):
-        peso = float(input("Inserisci il peso: "))
-        nome_torta = input("Inserisci nome: ")
-        cliente_budget = self.get_budget()
-        prezzo = past.ordina_torta(peso, nome_torta)
-        if cliente_budget >= prezzo:
-            cliente_budget -= prezzo
-            self.set_budget(cliente_budget)
-            print("La torta è stata acquistata!")
-        else:
-            print("Budget non abbastanza alto")
+
+    def prenota_torta(self, pasticceria):
+        # Mostra le torte disponibili
+        print("\n📦 Torte attualmente disponibili in pasticceria:")
+        for nome, torta in pasticceria._Pasticceria__inventario.items():
+            print(f"🧁 {torta.nome} ({nome}) - Peso: {torta.peso}kg")
+        if not pasticceria._Pasticceria__inventario:
+            print("🚫 Nessuna torta disponibile in inventario.")
+
+        peso = float(input("🔹 Inserisci il peso (in Kg) della torta: "))
+        nome_torta = input("🔸 Inserisci il nome della torta: ")
         
+        prezzo = torta.calcola_prezzo(torta.peso)
+        print(f"💰 Prezzo della torta: €{prezzo:.2f}")
+
+        if self.__budget >= prezzo:
+            self.__budget -= prezzo
+            pasticceria.registra_vendita(torta)
+            print(f"🎉 Torta acquistata con successo! Budget residuo: €{self.__budget:.2f}\n")
+        else:
+            print("❌ Budget insufficiente per completare l'acquisto.\n")
+            return
+            
+        # Tempo di preparazione simulato (2 secondi)
+        time.sleep(2)
+
+        torta = pasticceria.ordina_torta(peso, nome_torta)
+        if not torta:
+            print("❌ Errore nell'ordinazione della torta.\n")
+            return
+
+        
+
+# Funzione principale con menù
+def main():
+    pasticceria = Pasticceria()
+    cliente = Cliente("Maurizio", 50)
+    print("""
+        
+            ~                  ~
+        *                   *                *       *
+                    *               *
+    ~       *                *         ~    *
+                *       ~        *              *   ~
+                    )         (         )              *
+        *    ~     ) (_)   (   (_)   )   (_) (  *
+            *  (_) # ) (_) ) # ( (_) ( # (_)       *
+                _#.-#(_)-#-(_)#(_)-#-(_)#-.#_
+    *        .' #  # #  #  # # #  #  # #  # `.   ~     *
+            :   #    #  #  #   #  #  #    #   :
+        ~    :.       #     #   #     #       .:      *
+             | `-.__                     __.-' | *
+            |       ````----------------``    |         *
+        *   |                                 |
+            |                                 |       ~
+    ~   *   |                                 | *
+            |               TORTA             |         *
+    *    _.-|                                 |-._ 
+        .'   '.      ~            ~           .'   `.  *
+        :      `-.__                     __.-'      :
+        `.         ````-----------------          _..-'
+           ???? `````------------------```` ??????
+    """)
+
+    while True:
+        print("\n--- MENU ---")
+        print("1. Modalità pasticceria")
+        print("2. Modalità cliente")
+        print("3. Mostra saldo pasticceria")
+        print("4. Esci")
+        scelta = input("Scegli un'opzione: ")
+
+        if scelta == "1":
+            while True:
+                print("\n--- MODALITÀ PASTICCERIA ---")
+                print("1. Aggiungi una torta all'inventario")
+                print("2. Rifornisci ingredienti")
+                print("3. Torna al menu principale")
+                scelta_pasticceria = input("Scegli un'opzione: ")
+
+                if scelta_pasticceria == "1":
+                    nome = input("🔹 Inserisci il nome della torta da aggiungere: ")
+                    try:
+                        peso = float(input("🔸 Inserisci il peso (in Kg): "))
+                        pasticceria.crea_torta(peso, nome)
+                    except ValueError:
+                        print("❌ Peso non valido.\n")
+                elif scelta_pasticceria == "2":
+                    ingrediente = input("🔹 Inserisci il nome dell'ingrediente da rifornire: ")
+                    try:
+                        quantita = int(input("🔸 Inserisci la quantità da aggiungere: "))
+                        pasticceria.rifornisci_ingredienti(ingrediente, quantita)
+                    except ValueError:
+                        print("❌ Quantità non valida.\n")
+                elif scelta_pasticceria == "3":
+                    break
+                else:
+                    print("❌ Scelta non valida.\n")
+        
+        elif scelta == "2":
+            while True:
+                print("\n--- MODALITÀ CLIENTE ---")
+                print("1. Ordina una torta")
+                print("2. Visualizza budget disponibile")
+                print("3. Torna al menu principale")
+                scelta_cliente = input("Scegli un'opzione: ")
+
+                if scelta_cliente == "1":
+                    cliente.prenota_torta(pasticceria)
+                elif scelta_cliente == "2":
+                    print(f"💵 Il tuo budget residuo è: €{cliente.get_budget():.2f}\n")
+                elif scelta_cliente == "3":
+                    break
+                else:
+                    print("❌ Scelta non valida.\n")
+
+        elif scelta == "3":
+            print(f"💰 Il saldo totale della pasticceria è: €{pasticceria.get_saldo():.2f}\n")
+
+        elif scelta == "4":
+            print("👋 Arrivederci!\n")
+            break
+
+        else:
+            print("❌ Scelta non valida.\n")
+
+if __name__ == "__main__":
+    main()
