@@ -1,7 +1,7 @@
 import pandas as pd
 
 # Caricamento del file CSV
-file_path = r'C:\Users\Simxyz\Desktop\DataScienceCarreer\4.ItConsultingGiGroup\CorsoPythonwGithub\SimoneVerrengia_DepositoCorsoPython\22_04_CorsoPython\personale.csv'
+file_path = r'C:\Users\Simxyz\Desktop\DataScienceCarreer\4.ItConsultingGiGroup\CorsoPythonwGithub\SimoneVerrengia_DepositoCorsoPython\22_04_CorsoPython\EsercizioEsplorazioneDati\personale.csv'
 df = pd.read_csv(file_path)
 
 # Stampa del DataFrame originale e anteprime
