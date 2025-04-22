@@ -4,41 +4,41 @@ import pandas as pd
 data = r'C:\Users\Simxyz\Desktop\DataScienceCarreer\4.ItConsultingGiGroup\CorsoPythonwGithub\SimoneVerrengia_DepositoCorsoPython\22_04_CorsoPython\manipolazioneAggregazione\vendite.csv'
 df = pd.read_csv(data)
 
-# 1. Anteprima dei dati
+# Anteprima dei dati
 print("Prime 5 righe del DataFrame:")
 print(df.head(5))
 
-# 2. Calcolo del totale vendite
+# Calcolo del totale vendite
 df['TotaleVendite'] = df['Prezzo Unitario'] * df['Quantità']
 print("\nDataFrame con totale vendite:")
 print(df)
 
-# 3. Vendite totali per prodotto
+# Vendite totali per prodotto
 print("\nVendite totali per ciascun prodotto:")
 perProdotto = df.groupby('Prodotto')['TotaleVendite'].sum()
 print(perProdotto)
 
-# 4. Prodotto più venduto (per quantità)
+# Prodotto più venduto (per quantità)
 print("\nIl prodotto più venduto (per quantità) è:")
 piuVenduto = df.loc[df['Quantità'].idxmax()]
 print(piuVenduto[['Prodotto', 'Quantità']])
 
-# 5. Città con maggior volume di vendite
+# Città con maggior volume di vendite
 print("\nCittà con maggior volume di vendite:")
 citta_max = df.groupby('Città')['TotaleVendite'].sum().idxmax()
 print(f"{citta_max} (Totale: {df.groupby('Città')['TotaleVendite'].sum().max():.2f}€)")
 
-# 6. Vendite superiori a 1000 euro
+# Vendite superiori a 1000 euro
 print("\nLe vendite superiori a 1000 euro sono:")
 vendite1000 = df[df['TotaleVendite'] > 1000]
 print(vendite1000)
 
-# 7. Ordinamento per TotaleVendite (decrescente)
+# Ordinamento per TotaleVendite (decrescente)
 print("\nDataFrame ordinato per TotaleVendite (decrescente):")
 df_ordinato = df.sort_values('TotaleVendite', ascending=False)
 print(df_ordinato)
 
-# 8. Numero di vendite per città
+# Numero di vendite per città
 print("\nNumero di vendite per ogni città:")
 conteggio_citta = df['Città'].value_counts()
 print(conteggio_citta)
