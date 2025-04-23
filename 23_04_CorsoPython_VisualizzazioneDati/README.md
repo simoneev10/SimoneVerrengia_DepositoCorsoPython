@@ -43,12 +43,7 @@ Questo modulo introduce i concetti fondamentali della visualizzazione dei dati i
 
 - Visualizzazione diretta da DataFrame
 - Manipolazione dei dati per visualizzazioni efficaci
-
-## 📁 Contenuto del repository
-
-- `01_MatplotlibIntroduzione.ipynb`: Notebook con introduzione a Matplotlib
-- `02_Seaborn.ipynb`: Notebook con introduzione a Seaborn
-- Dataset di esempio
+  
 
 ## 🛠️ Setup e prerequisiti
 
