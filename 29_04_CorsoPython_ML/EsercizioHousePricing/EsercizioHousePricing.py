@@ -144,13 +144,3 @@ plt.grid(axis='y', linestyle='--', alpha=0.7)
 plt.xticks(rotation=15)
 plt.tight_layout()
 plt.show()
-
-# ================================
-# (Opzionale) Confronto con RFE
-# ================================
-# model_rfe = LinearRegression()
-# selector = RFE(model_rfe, n_features_to_select=10)
-# selector = selector.fit(X_train_scaled, y_train)
-# selected_features = X.columns[selector.support_]
-# print("\nTop 10 feature selezionate da RFE:")
-# print(selected_features)
