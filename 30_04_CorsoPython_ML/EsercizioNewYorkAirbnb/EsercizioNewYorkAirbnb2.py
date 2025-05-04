@@ -1,17 +1,14 @@
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
+import xgboost as xgb
 import seaborn as sns
 import statsmodels.api as sm
+import matplotlib.pyplot as plt
 from sklearn.model_selection import ParameterGrid
-from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.model_selection import train_test_split, GridSearchCV
 from statsmodels.stats.outliers_influence import variance_inflation_factor
-import xgboost as xgb
-import warnings
-from sklearn.metrics import mean_squared_error
-import numpy as np
 
 # --- 1. Caricamento ed Esplorazione Iniziale del Dataset ---
 file_path = r'C:\Users\Simxyz\Desktop\DataScienceCarreer\4.ItConsultingGiGroup\CorsoPythonwGithub\SimoneVerrengia_DepositoCorsoPython\30_04_CorsoPython_ML\EsercizioNewYorkAirbnb\AB_NYC_2019.csv'
