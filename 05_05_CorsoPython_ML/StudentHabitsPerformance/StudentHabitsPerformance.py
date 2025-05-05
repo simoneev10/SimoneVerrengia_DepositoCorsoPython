@@ -11,7 +11,7 @@ from sklearn.linear_model import LinearRegression
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 
 # 1. Caricamento e pulizia dati
-file_path = r'C:\Users\Simxyz\Desktop\DataScienceCarreer\4.ItConsultingGiGroup\CorsoPythonwGithub\SimoneVerrengia_DepositoCorsoPython\05_05_CorsoPython_ML\student_habits_performance.csv'
+file_path = r'C:\Users\Simxyz\Desktop\DataScienceCarreer\4.ItConsultingGiGroup\CorsoPythonwGithub\SimoneVerrengia_DepositoCorsoPython\05_05_CorsoPython_ML\StudentHabitsPerformance\student_habits_performance.csv'
 df = pd.read_csv(file_path)
 
 # Rimuovo ID e imputazione modalità per education
