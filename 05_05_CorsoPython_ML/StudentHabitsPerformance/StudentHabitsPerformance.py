@@ -4,10 +4,10 @@ import pandas as pd
 import seaborn as sns
 import statsmodels.api as sm
 from xgboost import XGBRegressor, plot_importance
-from sklearn.model_selection import GridSearchCV, train_test_split
 from sklearn.metrics import r2_score, mean_squared_error
 from sklearn.preprocessing import LabelEncoder, OrdinalEncoder, StandardScaler
 from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import GridSearchCV, train_test_split
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 
 # 1. Caricamento e pulizia dati
