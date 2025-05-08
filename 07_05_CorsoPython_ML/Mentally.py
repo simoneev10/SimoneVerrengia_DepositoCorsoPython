@@ -10,19 +10,21 @@ from sklearn.metrics import r2_score, mean_squared_error
 from sklearn.preprocessing import OrdinalEncoder, LabelEncoder
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 from sklearn.model_selection import GridSearchCV, train_test_split
+from imblearn.over_sampling import SMOTE
+from imblearn.pipeline import Pipeline as ImbPipeline
+from sklearn.metrics import confusion_matrix, classification_report
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+from sklearn.linear_model import LogisticRegression
+from xgboost import XGBClassifier
+import matplotlib.pyplot as plt
+import seaborn as sns
 
-# Assicurati di avere installato le librerie necessarie:
-# pip install pandas numpy seaborn matplotlib scikit-learn xgboost scikit-learn
-
-# === Caricamento dati ===
-# ATTENZIONE: Assicurati che i percorsi dei file siano corretti sul tuo sistema.
-# Rimossi try-except e controlli if not empty come richiesto.
 train = pd.read_csv(r'C:\Users\Simxyz\Desktop\DataScienceCarreer\4.ItConsultingGiGroup\CorsoPythonwGithub\SimoneVerrengia_DepositoCorsoPython\07_05_CorsoPython_ML\MentallyStabilityOfThePerson\train.csv')
 test = pd.read_csv(r'C:\Users\Simxyz\Desktop\DataScienceCarreer\4.ItConsultingGiGroup\CorsoPythonwGithub\SimoneVerrengia_DepositoCorsoPython\07_05_CorsoPython_ML\MentallyStabilityOfThePerson\test.csv')
 
 print("Dati caricati con successo!")
 
-# --- Visualizzazione iniziale dei dati (opzionale ma utile) ---
+# --- Visualizzazione iniziale dei dati ---
 print("\nAnteprima del DataFrame 'train':")
 print(train.head())
 print("\nInformazioni sul DataFrame 'train':")
@@ -522,6 +524,7 @@ try:
 except Exception as e:
     print(f"\nErrore durante l'esportazione del DataFrame: {e}")
     
+   
 # --- Visualizzazione della Matrice di Correlazione ---
 numeric_cols = [
     'Age', 'Academic Pressure', 'Work Pressure', 'CGPA', 'Study Satisfaction',
@@ -531,10 +534,8 @@ numeric_cols = [
     'Region_Encoded', 'Degree_Group_Encoded', 'Professional_Group_Encoded'
 ]
 
-cont_df = df_clean.select_dtypes(include=['float64'])
-
 #calcolo la Pearson-corr
-corr_matrix = cont_df.corr()
+corr_matrix = df_clean[numeric_cols].corr()
 
 plt.figure(figsize=(8,6))
 sns.heatmap(corr_matrix, annot=True, fmt=".2f", cmap="coolwarm")
@@ -569,103 +570,142 @@ def elimina_variabili_vif_pvalue(X, y, vif_threshold=5.0, pvalue_threshold=0.05)
     print("Numero di feature:", len(X_current.columns))  # Alternativa corretta per contare le colonne
     return X_current
 
+df_clean = df_clean.drop(columns=['SuicidalThoughts'])
+
 # Separazione X/y e selezione
 X = df_clean.drop(columns=['Depression'])
 y = df_clean['Depression']
 X_selected = elimina_variabili_vif_pvalue(X, y)
+ # Analizziamo la distribuzione delle classi
+print("\nDistribuzione delle classi nel target:")
+print(y.value_counts(normalize=True))
 
-X_train, X_test, y_train, y_test = train_test_split(X_selected, y, test_size=0.2, random_state=73)
+# Calcoliamo il rapporto per scale_pos_weight in XGBoost
+negative_count, positive_count = np.bincount(y)
+scale_pos_weight = negative_count / positive_count
+print(f"\nRapporto delle classi (negativo/positivo): {scale_pos_weight:.2f}")
 
-# Linear Regression
-lr = LinearRegression().fit(X_train, y_train)
-y_pred_lr = lr.predict(X_test)
+# Separazione train/test mantenendo la distribuzione delle classi
+X_train, X_test, y_train, y_test = train_test_split(
+    X_selected, y, 
+    test_size=0.2, 
+    random_state=73,
+    stratify=y  # Mantiene la distribuzione originale
+)
 
-# XGBoost base
-xgb = XGBRegressor(objective='reg:squarederror', random_state=73).fit(X_train, y_train)
-y_pred_xgb = xgb.predict(X_test)
-# XGBoost ottimizzato (CV)
-param_grid = { 'n_estimators': [50,100], 'max_depth': [3,5], 'learning_rate':[0.01,0.1] }
-grid = GridSearchCV(XGBRegressor(objective='reg:squarederror', random_state=73),
-                    param_grid, scoring='r2', cv=5, n_jobs=-1)
-grid.fit(X_train, y_train)
-best_xgb = grid.best_estimator_
-y_pred_xgb_best = best_xgb.predict(X_test)
+# 1. Logistic Regression con class weights
+log_reg = LogisticRegression(
+    random_state=73, 
+    max_iter=1000,
+    class_weight='balanced'  # Aggiunto bilanciamento classi
+)
 
-# R² e RMSE per tutti
-metrics = pd.DataFrame({
-    'Model': ['LinearReg','XGBoost_base','XGBoost_CV'],
-    'R2': [r2_score(y_test,y_pred_lr), r2_score(y_test,y_pred_xgb), r2_score(y_test,y_pred_xgb_best)],
-    'RMSE': [np.sqrt(mean_squared_error(y_test,y_pred_lr)),
-             np.sqrt(mean_squared_error(y_test,y_pred_xgb)),
-             np.sqrt(mean_squared_error(y_test,y_pred_xgb_best))]
-})
-print(metrics)
+# 2. XGBoost con pesi per la classe positiva
+xgb_clf = XGBClassifier(
+    objective='binary:logistic', 
+    random_state=73,
+    scale_pos_weight=scale_pos_weight  # Aggiunto bilanciamento
+)
 
-# 5. Grafico comparativo Predetti vs Reali
-sns.set(style='ticks')
-plt.figure(figsize=(12,12))
-for i,(pred, name) in enumerate(zip(
-        [y_pred_lr, y_pred_xgb, y_pred_xgb_best],
-        ['LinearReg','XGBoost_base','XGBoost_CV']), 1):
-    ax = plt.subplot(3,1,i)
-    sns.scatterplot(x=y_test, y=pred, alpha=0.6)
-    ax.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], 'r--')
-    ax.set_xlabel('Valori Reali')
-    ax.set_ylabel('Predetti')
-    ax.set_title(f'{name}: Reali vs Predetti')
-plt.tight_layout()
-plt.show()
+# 3. Pipeline con SMOTE e XGBoost
+smote = SMOTE(random_state=73, sampling_strategy='auto')
+xgb_smote = ImbPipeline([
+    ('smote', smote),
+    ('xgb', XGBClassifier(objective='binary:logistic', random_state=73))
+])
 
+# Parametri per la GridSearch con SMOTE
+param_grid = {
+    'xgb__n_estimators': [50, 100],
+    'xgb__max_depth': [3, 5],
+    'xgb__learning_rate': [0.01, 0.1],
+    'xgb__scale_pos_weight': [1, scale_pos_weight]  # Testa con e senza pesi
+}
 
-# ==================================================================
-# 4. EXPLANATION: RESIDUI E BOXPLOT
-# ==================================================================
-# Definizione residuo: residuo = valore reale - valore predetto
-# Un boxplot dei residui aiuta a visualizzare:
-#   - la mediana (bias centrale)
-#   - la dispersione (IQR)
-#   - eventuali outlier (punti al di fuori di 1.5 * IQR)
-# I residui dovrebbero essere simmetrici intorno a zero e senza outlier estremi.
+grid_clf = GridSearchCV(
+    xgb_smote,
+    param_grid, 
+    scoring='f1', 
+    cv=5, 
+    n_jobs=-1
+)
 
-# Calcolo residui per LinearReg
-res_lr = y_test - y_pred_lr
+# Addestramento modelli
+print("\nAddestramento modelli...")
+log_reg.fit(X_train, y_train)
+xgb_clf.fit(X_train, y_train)
+grid_clf.fit(X_train, y_train)
 
-plt.figure(figsize=(6,6))
-sns.boxplot(y=res_lr)
-plt.title('Boxplot dei Residui - Linear Regression')
-plt.ylabel('Residui (Real - Predetto)')
-plt.show()
+# Miglior modello con SMOTE
+best_xgb_clf = grid_clf.best_estimator_
+y_pred_log = log_reg.predict(X_test)
+y_pred_xgb = xgb_clf.predict(X_test)
+y_pred_xgb_best = best_xgb_clf.predict(X_test)
+# Funzione per visualizzare più matrici di confusione in un unico grafico
+def plot_combined_confusion_matrices(y_true, y_pred_list, model_names):
+    plt.figure(figsize=(15, 4))
+    
+    for i, (y_pred, name) in enumerate(zip(y_pred_list, model_names)):
+        plt.subplot(1, 3, i+1)
+        cm = confusion_matrix(y_true, y_pred)
+        sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', cbar=False)
+        plt.title(f"Confusion Matrix - {name}")
+        plt.ylabel('Actual')
+        plt.xlabel('Predicted')
+    
+    plt.tight_layout()
+    plt.show()
 
-# 5. RIMOZIONE OUTLIER BASATA SULL'IQR DEI RESIDUI
-df_res = pd.DataFrame({'residui':res_lr})
-Q1, Q3 = df_res['residui'].quantile([0.25,0.75])
-IQR = Q3 - Q1
-lower, upper = Q1 - 1.5*IQR, Q3 + 1.5*IQR
-filtro = df_res['residui'].between(lower, upper)
-print(f"Outlier rimossi: {len(df_res)-filtro.sum()}")
-# Crea dati "puliti"
-X_clean = X_test[filtro.values]
-y_clean = y_test[filtro.values]
-# Ricalcolo predizioni e metriche per Linear
-y_pred_clean = lr.predict(X_clean)
-r2_clean = r2_score(y_clean, y_pred_clean)
-print(f"R2 before: {metrics.loc[0,'R2']:.3f} | R2 after: {r2_clean:.3f}")
+# Usiamo la funzione per visualizzare tutte le matrici di confusione insieme
+plot_combined_confusion_matrices(
+    y_test, 
+    [y_pred_log, y_pred_xgb, y_pred_xgb_best], 
+    ["Logistic Regression", "XGBoost", "XGBoost (Optimized)"]
+)
 
-# 6. GRAFICO COMPARATIVO LINEAR PRIMA/DOPO OUTLIER
-plt.figure(figsize=(12,5))
-# Prima rimozione
-ax1 = plt.subplot(1,2,1)
-sns.scatterplot(x=y_test, y=y_pred_lr, alpha=0.6)
-ax1.plot([y_test.min(),y_test.max()],[y_test.min(),y_test.max()],'r--')
-ax1.set_title('Linear: Reali vs Predetti (Originale)')
-ax1.set_xlabel('Reali')
-ax1.set_ylabel('Predetti')
-# Dopo rimozione
-ax2 = plt.subplot(1,2,2)
-sns.scatterplot(x=y_clean, y=y_pred_clean, alpha=0.6)
-ax2.plot([y_clean.min(),y_clean.max()],[y_clean.min(),y_clean.max()],'r--')
-ax2.set_title('Linear: Reali vs Predetti (Pulito)')
-ax2.set_xlabel('Reali')
-ax2.set_ylabel('Predetti')
-plt.tight_layout()
-plt.show()
+# Per un confronto ancora più approfondito, possiamo anche aggiungere una visualizzazione 
+# delle metriche principali in un unico grafico a barre
+def plot_metrics_comparison(y_true, y_pred_list, model_names):
+    metrics = {
+        'Accuracy': [],
+        'Precision': [],
+        'Recall': [],
+        'F1 Score': []
+    }
+    
+    for y_pred in y_pred_list:
+        metrics['Accuracy'].append(accuracy_score(y_true, y_pred))
+        metrics['Precision'].append(precision_score(y_true, y_pred))
+        metrics['Recall'].append(recall_score(y_true, y_pred))
+        metrics['F1 Score'].append(f1_score(y_true, y_pred))
+    
+    # Creiamo un DataFrame per facilitare la visualizzazione
+    metrics_df = pd.DataFrame(metrics, index=model_names)
+    
+    # Plot
+    plt.figure(figsize=(12, 6))
+    metrics_df.plot(kind='bar', figsize=(12, 6))
+    plt.title('Confronto delle metriche tra i modelli')
+    plt.ylabel('Score')
+    plt.ylim(0, 1.0)
+    plt.xticks(rotation=0)
+    plt.legend(loc='lower right')
+    plt.grid(axis='y', linestyle='--', alpha=0.7)
+    plt.tight_layout()
+    plt.show()
+    
+    return metrics_df
+
+# Confrontiamo le metriche
+metrics_df = plot_metrics_comparison(
+    y_test, 
+    [y_pred_log, y_pred_xgb, y_pred_xgb_best], 
+    ["Logistic Regression", "XGBoost", "XGBoost (Optimized)"]
+)
+
+ # Analizziamo la distribuzione delle classi
+print("\nDistribuzione delle classi nel target dopo lo SMOTE:")
+print(y.value_counts(normalize=True))
+
+print("\nConfronti metriche in formato tabella:")
+print(metrics_df.round(4))
