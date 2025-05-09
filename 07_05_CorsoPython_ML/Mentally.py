@@ -570,7 +570,7 @@ def elimina_variabili_vif_pvalue(X, y, vif_threshold=5.0, pvalue_threshold=0.05)
     print("Numero di feature:", len(X_current.columns))  # Alternativa corretta per contare le colonne
     return X_current
 
-df_clean = df_clean.drop(columns=['SuicidalThoughts'])
+# df_clean = df_clean.drop(columns=['SuicidalThoughts'])
 
 # Separazione X/y e selezione
 X = df_clean.drop(columns=['Depression'])
@@ -709,3 +709,11 @@ print(y.value_counts(normalize=True))
 
 print("\nConfronti metriche in formato tabella:")
 print(metrics_df.round(4))
+
+# Esporta il DataFrame risultante in un file CSV chiamato 'prova.csv'
+try:
+    file_path = r'C:\Users\Simxyz\Desktop\DataScienceCarreer\4.ItConsultingGiGroup\CorsoPythonwGithub\SimoneVerrengia_DepositoCorsoPython\07_05_CorsoPython_ML\MentallyStabilityOfThePerson\submission.csv'
+    df.to_csv(file_path, index=False) # index=False per non scrivere l'indice del DataFrame come colonna
+    print("\nDataFrame esportato con successo in 'submission.csv'")
+except Exception as e:
+    print(f"\nErrore durante l'esportazione del DataFrame: {e}")
